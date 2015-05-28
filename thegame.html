@@ -1,0 +1,64 @@
+<head>
+  <title>thegame</title>
+</head>
+
+<body>
+  <h1>Welcome to the game!</h1>
+
+  {{> thegame}}
+</body>
+
+<template name="thegame">
+  <ul>
+    <li class="startGame"> Start Again </li>
+    <li>
+      <table>
+        <tr>
+          <td></td><td></td>
+          {{#each hand}}
+            <td>{{card}}</td>
+          {{/each}}
+          <td></td><td></td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>{{firstLower}}</td>
+          {{#each hand}}
+            <td class="addFirstLower"><b>{{card}}</b></td>
+          {{/each}}
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>{{secondLower}}</td>
+          {{#each hand}}
+            <td class="addSecondLower"><b>{{card}}</b></td>
+          {{/each}}
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          {{#each hand}}
+            <td class="addFirstUpper"><b>{{card}}</b></td>
+          {{/each}}
+          <td>{{firstUpper}}</td>
+          <td>100</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          {{#each hand}}
+            <td class="addSecondUpper"><b>{{card}}</b></td>
+          {{/each}}
+          <td>{{secondUpper}}</td>
+          <td>100</td>
+        </tr>
+      </table>
+    </li>
+    <li class="addCards"> New Cards </li>
+    <li>|{{#each cheat}}{{card}}|{{/each}}</li>
+  </ul>
+</template>
