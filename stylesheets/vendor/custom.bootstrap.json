@@ -1,7 +1,7 @@
 {
   "modules" : {
     "normalize"            : true,
-    "print"                : true,
+    "print"                : false,
     "glyphicons"           : false,
 
     "scaffolding"          : true,
@@ -24,7 +24,7 @@
     "labels"               : false,
 
     "badges"               : false,
-    "jumbotron"            : false,
+    "jumbotron"            : true,
     "thumbnails"           : false,
     "alerts"               : false,
     "progress-bars"        : false,

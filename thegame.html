@@ -6,7 +6,6 @@
 <body>
 
   <div class="container">
-    <h1>Welcome to the game!</h1>
 
     {{> thegame}}
 
@@ -15,11 +14,11 @@
 
 <template name="thegame">
 
-  <div class="row">
-    <div class="col-md-12">
-      <p><button type="button"  class="btn btn-danger " id="startGame">Start Again</button></p>
-    </div>
+  <div class="jumbotron">
+      <h1>{{headerContent}}</h1>
+      <button type="button"  class="btn btn-danger " id="startGame">Start</button>
   </div>
+
   <div class ="row">
     <div class="col-md-12">
       <p><button type="button"  class="btn btn-success btn-block" disabled="{{addCardsDisabled}}" id="addCards">Add Cards ({{remainingStapel}})</button></p>
@@ -51,9 +50,9 @@
 
   <div class ="row">
     <div class="col-sm-12 col-md-12 col-lg-12">
+      <p></p>
       <p>{{#each cheat}}{{card}}.{{/each}}</p>
     </div>
   </div>
-
 
 </template>

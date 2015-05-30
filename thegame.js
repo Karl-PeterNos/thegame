@@ -72,6 +72,25 @@ if (Meteor.isClient) {
     }
   }
 
+  function findMove(){
+    var hc = hand.find().count();
+
+    for(i=0;i<hc;i++){
+      var cc = hand.find().fetch()[i].card;
+
+      if(cc>Session.get('firstLower')||(cc+10)==Session.get('firstLower')){
+        return cc;
+      }else if(cc>Session.get('secondLower')||(cc+10)==Session.get('secondLower')) {
+        return cc;
+      }else if(cc<Session.get('firstUpper')||(cc-10)==Session.get('firstUpper')) {
+        return cc;
+      }else if(cc<Session.get('secondUpper')||(cc-10)==Session.get('secondUpper')) {
+        return cc;
+      }
+    }
+    return 0;
+  }
+
   function addCards(){
     r = hand.find().count();
     if(r<5){
@@ -123,11 +142,20 @@ if (Meteor.isClient) {
       return cheat.find();
     },
     addCardsDisabled: function(){
-      return ((hand.find().count()>4)||(Session.get('stapelIndex')>97));
+      return ((hand.find().count()>4)||(Session.get('stapelIndex')>97)||(Session.get('stapelIndex')==0));
     },
     remainingStapel: function(){
       var r = 98-Session.get('stapelIndex');
       return r;
+    },
+    headerContent: function(){
+      if((Session.get('stapelIndex')>97)&&(hand.find().count()==0)){
+        return "You won a game!";
+      }else if((hand.find().count()>4)&&(findMove()==0)) {
+        return "You lost a game!";
+      }else {
+        return "Play a game!"
+      }
     }
   });
 
@@ -146,6 +174,7 @@ if (Meteor.isClient) {
         stapel[j]=stapel[i];
         stapel[i]=k;
       }
+
 
       Session.set('firstLower',1);
       Session.set('secondLower',1);

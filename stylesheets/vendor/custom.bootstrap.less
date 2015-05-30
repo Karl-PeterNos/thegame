@@ -440,117 +440,6 @@ th {
 
 
 
-// @import "bootstrap/less/print.less"
-/*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
-
-// ==========================================================================
-// Print styles.
-// Inlined to avoid the additional HTTP request: h5bp.com/r
-// ==========================================================================
-
-@media print {
-    *,
-    *:before,
-    *:after {
-        background: transparent !important;
-        color: #000 !important; // Black prints faster: h5bp.com/s
-        box-shadow: none !important;
-        text-shadow: none !important;
-    }
-
-    a,
-    a:visited {
-        text-decoration: underline;
-    }
-
-    a[href]:after {
-        content: " (" attr(href) ")";
-    }
-
-    abbr[title]:after {
-        content: " (" attr(title) ")";
-    }
-
-    // Don't show links that are fragment identifiers,
-    // or use the `javascript:` pseudo protocol
-    a[href^="#"]:after,
-    a[href^="javascript:"]:after {
-        content: "";
-    }
-
-    pre,
-    blockquote {
-        border: 1px solid #999;
-        page-break-inside: avoid;
-    }
-
-    thead {
-        display: table-header-group; // h5bp.com/t
-    }
-
-    tr,
-    img {
-        page-break-inside: avoid;
-    }
-
-    img {
-        max-width: 100% !important;
-    }
-
-    p,
-    h2,
-    h3 {
-        orphans: 3;
-        widows: 3;
-    }
-
-    h2,
-    h3 {
-        page-break-after: avoid;
-    }
-
-    // Bootstrap specific changes start
-    //
-    // Chrome (OSX) fix for https://github.com/twbs/bootstrap/issues/11245
-    // Once fixed, we can just straight up remove this.
-    select {
-        background: #fff !important;
-    }
-
-    // Bootstrap components
-    .navbar {
-        display: none;
-    }
-    .btn,
-    .dropup > .btn {
-        > .caret {
-            border-top-color: #000 !important;
-        }
-    }
-    .label {
-        border: 1px solid #000;
-    }
-
-    .table {
-        border-collapse: collapse !important;
-
-        td,
-        th {
-            background-color: #fff !important;
-        }
-    }
-    .table-bordered {
-        th,
-        td {
-            border: 1px solid #ddd !important;
-        }
-    }
-
-    // Bootstrap specific changes end
-}
-
-
-
 // @import "bootstrap/less/scaffolding.less"
 //
 // Scaffolding
@@ -1515,6 +1404,60 @@ input[type="button"] {
       position: absolute;
       clip: rect(0,0,0,0);
       pointer-events: none;
+    }
+  }
+}
+
+
+
+// @import "bootstrap/less/jumbotron.less"
+//
+// Jumbotron
+// --------------------------------------------------
+
+
+.jumbotron {
+  padding: @jumbotron-padding (@jumbotron-padding / 2);
+  margin-bottom: @jumbotron-padding;
+  color: @jumbotron-color;
+  background-color: @jumbotron-bg;
+
+  h1,
+  .h1 {
+    color: @jumbotron-heading-color;
+  }
+
+  p {
+    margin-bottom: (@jumbotron-padding / 2);
+    font-size: @jumbotron-font-size;
+    font-weight: 200;
+  }
+
+  > hr {
+    border-top-color: darken(@jumbotron-bg, 10%);
+  }
+
+  .container &,
+  .container-fluid & {
+    border-radius: @border-radius-large; // Only round corners at higher resolutions if contained in a container
+  }
+
+  .container {
+    max-width: 100%;
+  }
+
+  @media screen and (min-width: @screen-sm-min) {
+    padding: (@jumbotron-padding * 1.6) 0;
+
+    .container &,
+    .container-fluid & {
+      padding-left:  (@jumbotron-padding * 2);
+      padding-right: (@jumbotron-padding * 2);
+    }
+
+    h1,
+    .h1 {
+      font-size: (@font-size-base * 4.5);
     }
   }
 }
