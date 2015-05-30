@@ -2,15 +2,97 @@ if (Meteor.isClient) {
 
   hand = new Mongo.Collection(null);
   cheat = new Mongo.Collection(null);
-  var stapelIndex = 0;
   var stapel = new Array(99);
 
+  function addTableCard(tableCard){
+
+    var activeCard = Session.get('activeCard');
+
+    if (activeCard==tableCard){
+      Session.set('activeCard','');
+      return;
+    }else if (activeCard=='') {
+      Session.set('activeCard',tableCard);
+      return;
+    }else if (activeCard=='firstLower'
+            ||activeCard=='firstUpper'
+            ||activeCard=='secondLower'
+            ||activeCard=='secondUpper'){
+      Session.set('activeCard',tableCard);
+      return;
+    }else {
+      if(tableCard=='firstLower'||tableCard=='secondLower'){
+        if( activeCard<Session.get(tableCard)
+          &&activeCard!=Session.get(tableCard)-10)
+          return;
+      }else{
+        if( activeCard>Session.get(tableCard)
+          &&activeCard!=Session.get(tableCard)+10)
+          return;
+      }
+      Session.set(tableCard,activeCard);
+      cheat.remove({card:activeCard});
+      hand.remove({card:activeCard});
+      Session.set('activeCard','');
+      return;
+    }
+  }
+
+  function addHandCard(handCard){
+
+    var activeCard = Session.get('activeCard');
+
+    if (activeCard==handCard){
+      Session.set('activeCard','');
+      return;
+    }else if (activeCard=='') {
+      Session.set('activeCard',handCard);
+      return;
+    }else if (activeCard!='firstLower'
+            &&activeCard!='firstUpper'
+            &&activeCard!='secondLower'
+            &&activeCard!='secondUpper'){
+      Session.set('activeCard',handCard);
+      return;
+    }else {
+      if(activeCard=='firstLower'||activeCard=='secondLower'){
+        if( handCard<Session.get(activeCard)
+          &&handCard!=Session.get(activeCard)-10)
+          return;
+      }else{
+        if( handCard>Session.get(activeCard)
+          &&handCard!=Session.get(activeCard)+10)
+          return;
+      }
+      Session.set(activeCard,handCard);
+      cheat.remove({card:handCard});
+      hand.remove({card:handCard});
+      Session.set('activeCard','');
+      return;
+    }
+  }
+
+  function addCards(){
+    r = hand.find().count();
+    if(r<5){
+      r = 7-r;
+      var si = Session.get('stapelIndex');
+      for(i=0;i<r;i++){
+        hand.insert({card:stapel[si]});
+        if(si<98)
+          si++;
+      }
+      Session.set('stapelIndex',si)
+    }
+  }
 
   Template.thegame.onCreated(function(){
     Session.set('firstLower',1);
     Session.set('secondLower',1);
     Session.set('firstUpper',100);
     Session.set('secondUpper',100);
+    Session.set('activeCard','');
+    Session.set('stapelIndex',0);
   });
 
   Template.thegame.helpers({
@@ -26,17 +108,32 @@ if (Meteor.isClient) {
     secondUpper: function(){
       return Session.get('secondUpper');
     },
+    isActiveTable: function(card){
+      if(Session.get('activeCard')==card)
+        return 'active';
+    },
+    isActiveHand: function(){
+      if(Session.get('activeCard')==hand.findOne({_id:this._id}).card)
+        return 'active';
+    },
     hand: function(){
       return hand.find({},{sort: {card:1}});
     },
     cheat: function(){
       return cheat.find();
     },
+    addCardsDisabled: function(){
+      return ((hand.find().count()>4)||(Session.get('stapelIndex')>97));
+    },
+    remainingStapel: function(){
+      var r = 98-Session.get('stapelIndex');
+      return r;
+    }
   });
 
 
   Template.thegame.events({
-    'click .startGame': function () {
+    'click #startGame': function () {
       cheat.remove({});
       hand.remove({});
       for(i=0;i<98;i++){
@@ -49,60 +146,34 @@ if (Meteor.isClient) {
         stapel[j]=stapel[i];
         stapel[i]=k;
       }
-      stapelIndex = 0;
 
       Session.set('firstLower',1);
       Session.set('secondLower',1);
       Session.set('firstUpper',100);
       Session.set('secondUpper',100);
+      Session.set('activeCard','');
+      Session.set('stapelIndex',0);
+      addCards();
+
     },
 
-    'click .addCards': function () {
-      r = hand.find().count();
-      if(r<5){
-        r = 7-r;
-        for(i=0;i<r;i++){
-          hand.insert({card:stapel[stapelIndex]});
-          if(stapelIndex<98)
-            stapelIndex++;
-        }
-      }
+    'click #addCards': function () {
+      addCards();
     },
-
-    'click .addFirstLower': function(){
-      if( hand.findOne({_id:this._id}).card> Session.get('firstLower')
-        ||hand.findOne({_id:this._id}).card==Session.get('firstLower')-10){
-          Session.set('firstLower',hand.findOne({_id:this._id}).card);
-          cheat.remove({card:hand.findOne({_id:this._id}).card});
-          hand.remove({_id:this._id});
-        }
+    'click #firstLower': function(){
+      addTableCard('firstLower');
     },
-
-    'click .addSecondLower': function(){
-      if( hand.findOne({_id:this._id}).card> Session.get('secondLower')
-        ||hand.findOne({_id:this._id}).card==Session.get('secondLower')-10){
-          Session.set('secondLower',hand.findOne({_id:this._id}).card);
-          cheat.remove({card:hand.findOne({_id:this._id}).card});
-          hand.remove({_id:this._id});
-        }
+    'click #secondLower': function(){
+      addTableCard('secondLower');
     },
-
-    'click .addFirstUpper': function(){
-      if( hand.findOne({_id:this._id}).card< Session.get('firstUpper')
-        ||hand.findOne({_id:this._id}).card==Session.get('firstUpper')+10){
-          Session.set('firstUpper',hand.findOne({_id:this._id}).card);
-          cheat.remove({card:hand.findOne({_id:this._id}).card});
-          hand.remove({_id:this._id});
-        }
+    'click #firstUpper': function(){
+      addTableCard('firstUpper');
     },
-
-    'click .addSecondUpper': function(){
-      if( hand.findOne({_id:this._id}).card< Session.get('secondUpper')
-        ||hand.findOne({_id:this._id}).card==Session.get('secondUpper')+10){
-          Session.set('secondUpper',hand.findOne({_id:this._id}).card);
-          cheat.remove({card:hand.findOne({_id:this._id}).card});
-          hand.remove({_id:this._id});
-        }
+    'click #secondUpper': function(){
+      addTableCard('secondUpper');
+    },
+    'click #card': function(){
+      addHandCard(hand.findOne({_id:this._id}).card);
     }
 
   });

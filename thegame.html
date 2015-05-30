@@ -1,64 +1,59 @@
 <head>
   <title>thegame</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
-  <h1>Welcome to the game!</h1>
 
-  {{> thegame}}
+  <div class="container">
+    <h1>Welcome to the game!</h1>
+
+    {{> thegame}}
+
+  </div>
 </body>
 
 <template name="thegame">
-  <ul>
-    <li class="startGame"> Start Again </li>
-    <li>
-      <table>
-        <tr>
-          <td></td><td></td>
-          {{#each hand}}
-            <td>{{card}}</td>
-          {{/each}}
-          <td></td><td></td>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>{{firstLower}}</td>
-          {{#each hand}}
-            <td class="addFirstLower"><b>{{card}}</b></td>
-          {{/each}}
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>{{secondLower}}</td>
-          {{#each hand}}
-            <td class="addSecondLower"><b>{{card}}</b></td>
-          {{/each}}
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          {{#each hand}}
-            <td class="addFirstUpper"><b>{{card}}</b></td>
-          {{/each}}
-          <td>{{firstUpper}}</td>
-          <td>100</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          {{#each hand}}
-            <td class="addSecondUpper"><b>{{card}}</b></td>
-          {{/each}}
-          <td>{{secondUpper}}</td>
-          <td>100</td>
-        </tr>
-      </table>
-    </li>
-    <li class="addCards"> New Cards </li>
-    <li>|{{#each cheat}}{{card}}|{{/each}}</li>
-  </ul>
+
+  <div class="row">
+    <div class="col-md-12">
+      <p><button type="button"  class="btn btn-danger " id="startGame">Start Again</button></p>
+    </div>
+  </div>
+  <div class ="row">
+    <div class="col-md-12">
+      <p><button type="button"  class="btn btn-success btn-block" disabled="{{addCardsDisabled}}" id="addCards">Add Cards ({{remainingStapel}})</button></p>
+    </div>
+  </div>
+  <div class ="row">
+    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+      <button type="button"  class="btn btn-warning {{isActiveTable 'firstLower'}} btn-block" id="firstLower">{{firstLower}}</button>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+      <button type="button"  class="btn btn-warning {{isActiveTable 'secondLower'}} btn-block" id="secondLower">{{secondLower}}</button>
+    </div>
+  </div>
+  <div class ="row">
+    {{#each hand}}
+      <div class="col-xs-6 col-sm-2 col-md-2 col-lg-2">
+        <button type="button"  class="btn btn-primary {{isActiveHand}} btn-block" id="card">{{card}}</button>
+      </div>
+    {{/each}}
+  </div>
+  <div class ="row">
+    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+      <button type="button"  class="btn btn-warning {{isActiveTable 'firstUpper'}} btn-block" id="firstUpper">{{firstUpper}}</button>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+      <button type="button"  class="btn btn-warning {{isActiveTable 'secondUpper'}} btn-block" id="secondUpper">{{secondUpper}}</button>
+    </div>
+  </div>
+
+  <div class ="row">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+      <p>{{#each cheat}}{{card}}.{{/each}}</p>
+    </div>
+  </div>
+
+
 </template>
