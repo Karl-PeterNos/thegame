@@ -4,6 +4,9 @@ if (Meteor.isClient) {
   cheat = new Mongo.Collection(null);
   var stapel = new Array(99);
 
+  handR = new Mongo.Collection(null);
+  cheatR = new Mongo.Collection(null);
+
   function addTableCard(tableCard){
 
     var activeCard = Session.get('activeCard');
@@ -102,6 +105,17 @@ if (Meteor.isClient) {
           si++;
       }
       Session.set('stapelIndex',si)
+
+      handR.remove({});
+      cheatR.remove({});
+      hand.find().forEach(function(doc){handR.insert(doc)});
+      cheat.find().forEach(function(doc){cheatR.insert(doc)});
+      Session.set('firstLowerR',Session.get('firstLower'));
+      Session.set('secondLowerR',Session.get('secondLower'));
+      Session.set('firstUpperR',Session.get('firstUpper'));
+      Session.set('secondUpperR',Session.get('secondUpper'));
+      Session.set('stapelIndexR',Session.get('stapelIndex'));
+
     }
   }
 
@@ -129,11 +143,13 @@ if (Meteor.isClient) {
     },
     isActiveTable: function(card){
       if(Session.get('activeCard')==card)
-        return 'active';
+        return 'danger';
+        return 'warning';
     },
     isActiveHand: function(){
       if(Session.get('activeCard')==hand.findOne({_id:this._id}).card)
-        return 'active';
+        return 'info';
+      return 'primary';
     },
     hand: function(){
       return hand.find({},{sort: {card:1}});
@@ -156,7 +172,21 @@ if (Meteor.isClient) {
       }else {
         return "Play a game!"
       }
+    },
+    isDeltaTen: function(){
+      if (  (this.card == Session.get('firstUpper')+10)
+          ||(this.card == Session.get('secondUpper')+10)
+          ||(this.card == Session.get('firstLower')-10)
+          ||(this.card == Session.get('secondLower')-10)
+        )
+        return true;
+      if (hand.findOne({card:this.card+10}))
+        return true;
+      if (hand.findOne({card:this.card-10}))
+        return true;
+      return false;
     }
+
   });
 
 
@@ -203,7 +233,46 @@ if (Meteor.isClient) {
     },
     'click #card': function(){
       addHandCard(hand.findOne({_id:this._id}).card);
-    }
+    },
+    'click #resetHand': function(){
+      hand.remove({});
+      cheat.remove({});
+      handR.find().forEach(function(doc){hand.insert(doc)});
+      cheatR.find().forEach(function(doc){cheat.insert(doc)});
+      Session.set('firstLower',Session.get('firstLowerR'));
+      Session.set('secondLower',Session.get('secondLowerR'));
+      Session.set('firstUpper',Session.get('firstUpperR'));
+      Session.set('secondUpper',Session.get('secondUpperR'));
+      Session.set('stapelIndex',Session.get('stapelIndexR'));
+      Session.set('activeCard','');
+    },
+    'click #resetGame': function(){
+      cheat.remove({});
+      hand.remove({});
+      if(!stapel[0]){
+        for(i=0;i<98;i++){
+          stapel[i] = i+2;
+          cheat.insert({card:i+2});
+        }
+      }
+      for(i=0;i<98;i++){
+        j = Math.floor(Math.random()*(98-i))+i;
+        k = stapel[j];
+        stapel[j]=stapel[i];
+        stapel[i]=k;
+      }
+
+      Session.set('firstLower',1);
+      Session.set('secondLower',1);
+      Session.set('firstUpper',100);
+      Session.set('secondUpper',100);
+      Session.set('activeCard','');
+      Session.set('stapelIndex',0);
+      addCards();
+
+    },
+
+
 
   });
 }
