@@ -133,47 +133,63 @@ if (Meteor.isClient) {
       if((cc+10)==Session.get('firstLower')){
         r.handCard = cc;
         r.tableCard = 'firstLower';
-        r.text = cc+" to "+r.tableCard;
+        r.text = cc+" to "+Session.get(r.tableCard);
         return r;
       }else if((cc+10)==Session.get('secondLower')){
         r.handCard = cc;
         r.tableCard = 'secondLower';
-        r.text = cc+" to "+r.tableCard;
+        r.text = cc+" to "+Session.get(r.tableCard);
         return r;
       }else if((cc-10)==Session.get('firstUpper')){
         r.handCard = cc;
         r.tableCard = 'firstUpper';
-        r.text = cc+" to "+r.tableCard;
+        r.text = cc+" to "+Session.get(r.tableCard);
         return r;
       }else if((cc-10)==Session.get('secondUpper')){
         r.handCard = cc;
         r.tableCard = 'secondUpper';
-        r.text = cc+" to "+r.tableCard;
+        r.text = cc+" to "+Session.get(r.tableCard);
         return r;
       }
 
       if((cc>Session.get('firstLower'))&&((cc-Session.get('firstLower'))<deltaMin)){
         r.handCard = cc;
+        for(j=i+1;j<hc;j++){
+          if(hand.find().fetch()[j].card==(r.handCard+10))
+            r.handCard += 10;
+        }
         r.tableCard = 'firstLower';
-        r.text = cc+" to "+r.tableCard;
+        r.text = cc+" to "+Session.get(r.tableCard);
         deltaMin = cc-Session.get('firstLower');
       }
       if((cc>Session.get('secondLower'))&&((cc-Session.get('secondLower'))<deltaMin)){
         r.handCard = cc;
+        for(j=i+1;j<hc;j++){
+          if(hand.find().fetch()[j].card==(r.handCard+10))
+            r.handCard += 10;
+        }
         r.tableCard = 'secondLower';
-        r.text = cc+" to "+r.tableCard;
+        r.text = cc+" to "+Session.get(r.tableCard);
         deltaMin = cc-Session.get('secondLower');
       }
       if((cc<Session.get('firstUpper'))&&((Session.get('firstUpper')-cc)<deltaMin)){
         r.handCard = cc;
+        for(j=i-1;j>=0;j--){
+          if(hand.find().fetch()[j].card==(r.handCard-10))
+            r.handCard -= 10;
+        }
         r.tableCard = 'firstUpper';
-        r.text = cc+" to "+r.tableCard;
+        r.text = cc+" to "+Session.get(r.tableCard);
         deltaMin = Session.get('firstUpper')-cc;
       }
       if((cc<Session.get('secondUpper'))&&((Session.get('secondUpper')-cc)<deltaMin)){
         r.handCard = cc;
+        for(j=i-1;j>=0;j--){
+          if(hand.find().fetch()[j].card==(r.handCard-10))
+            r.handCard -= 10;
+        }
         r.tableCard = 'secondUpper';
-        r.text = cc+" to "+r.tableCard;
+        r.text = cc+" to "+Session.get(r.tableCard);
         deltaMin = Session.get('secondUpper')-cc;
       }
     }
@@ -343,6 +359,19 @@ if (Meteor.isClient) {
         addHandCard(move.handCard);
       }else{
         addCards();
+      }
+    },'click #doAutoPlay': function(){
+      if(findMove()==0)
+        startGame();
+
+      while(findMove()>0){
+        move = findBestNaive();
+        if(move.tableCard!=''){
+          Session.set('activeCard',move.tableCard);
+          addHandCard(move.handCard);
+        }else{
+          addCards();
+        }
       }
     }
 
