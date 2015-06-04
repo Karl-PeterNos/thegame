@@ -7,6 +7,30 @@ if (Meteor.isClient) {
   handR = new Mongo.Collection(null);
   cheatR = new Mongo.Collection(null);
 
+  function startGame(){
+    cheat.remove({});
+    hand.remove({});
+    for(i=0;i<98;i++){
+      stapel[i] = i+2;
+      cheat.insert({card:i+2});
+    }
+    for(i=0;i<98;i++){
+      j = Math.floor(Math.random()*(98-i))+i;
+      k = stapel[j];
+      stapel[j]=stapel[i];
+      stapel[i]=k;
+    }
+
+
+    Session.set('firstLower',1);
+    Session.set('secondLower',1);
+    Session.set('firstUpper',100);
+    Session.set('secondUpper',100);
+    Session.set('activeCard','');
+    Session.set('stapelIndex',0);
+    addCards();
+  }
+
   function addTableCard(tableCard){
 
     var activeCard = Session.get('activeCard');
@@ -94,10 +118,74 @@ if (Meteor.isClient) {
     return 0;
   }
 
+  function findBestNaive(){
+    var hc = hand.find().count();
+    var deltaMin = 100;
+    var r = {handCard:0, tableCard:'', text:''};
+
+    if (hc<=(Session.get("drawMax")-Session.get("playMin"))){
+      r.text = "Draw";
+      return r;
+    }
+
+    for(i=0;i<hc;i++){
+      var cc = hand.find().fetch()[i].card;
+      if((cc+10)==Session.get('firstLower')){
+        r.handCard = cc;
+        r.tableCard = 'firstLower';
+        r.text = cc+" to "+r.tableCard;
+        return r;
+      }else if((cc+10)==Session.get('secondLower')){
+        r.handCard = cc;
+        r.tableCard = 'secondLower';
+        r.text = cc+" to "+r.tableCard;
+        return r;
+      }else if((cc-10)==Session.get('firstUpper')){
+        r.handCard = cc;
+        r.tableCard = 'firstUpper';
+        r.text = cc+" to "+r.tableCard;
+        return r;
+      }else if((cc-10)==Session.get('secondUpper')){
+        r.handCard = cc;
+        r.tableCard = 'secondUpper';
+        r.text = cc+" to "+r.tableCard;
+        return r;
+      }
+
+      if((cc>Session.get('firstLower'))&&((cc-Session.get('firstLower'))<deltaMin)){
+        r.handCard = cc;
+        r.tableCard = 'firstLower';
+        r.text = cc+" to "+r.tableCard;
+        deltaMin = cc-Session.get('firstLower');
+      }
+      if((cc>Session.get('secondLower'))&&((cc-Session.get('secondLower'))<deltaMin)){
+        r.handCard = cc;
+        r.tableCard = 'secondLower';
+        r.text = cc+" to "+r.tableCard;
+        deltaMin = cc-Session.get('secondLower');
+      }
+      if((cc<Session.get('firstUpper'))&&((Session.get('firstUpper')-cc)<deltaMin)){
+        r.handCard = cc;
+        r.tableCard = 'firstUpper';
+        r.text = cc+" to "+r.tableCard;
+        deltaMin = Session.get('firstUpper')-cc;
+      }
+      if((cc<Session.get('secondUpper'))&&((Session.get('secondUpper')-cc)<deltaMin)){
+        r.handCard = cc;
+        r.tableCard = 'secondUpper';
+        r.text = cc+" to "+r.tableCard;
+        deltaMin = Session.get('secondUpper')-cc;
+      }
+    }
+    if(deltaMin==100)
+      r.text = "No more moves";
+    return r;
+  }
+
   function addCards(){
     r = hand.find().count();
-    if(r<5){
-      r = 7-r;
+    if(r<=(Session.get("drawMax")-Session.get("playMin"))){
+      r = Session.get("drawMax")-r;
       var si = Session.get('stapelIndex');
       for(i=0;i<r;i++){
         hand.insert({card:stapel[si]});
@@ -120,12 +208,9 @@ if (Meteor.isClient) {
   }
 
   Template.thegame.onCreated(function(){
-    Session.set('firstLower',1);
-    Session.set('secondLower',1);
-    Session.set('firstUpper',100);
-    Session.set('secondUpper',100);
-    Session.set('activeCard','');
-    Session.set('stapelIndex',0);
+    Session.set('playMin',3);
+    Session.set('drawMax',7);
+    startGame();
   });
 
   Template.thegame.helpers({
@@ -158,7 +243,11 @@ if (Meteor.isClient) {
       return cheat.find();
     },
     addCardsDisabled: function(){
-      return ((hand.find().count()>4)||(Session.get('stapelIndex')>97)||(Session.get('stapelIndex')==0));
+      return (
+        (hand.find().count()>(Session.get("drawMax")-(Session.get("playMin"))))
+            ||
+        ((Session.get('stapelIndex')>97)||(Session.get('stapelIndex')==0))
+             );
     },
     remainingStapel: function(){
       var r = 98-Session.get('stapelIndex');
@@ -185,35 +274,24 @@ if (Meteor.isClient) {
       if (hand.findOne({card:this.card-10}))
         return true;
       return false;
+    },
+    isDraw: function(handMax){
+      if(Session.get('drawMax')==handMax)
+        return 'X';
+    },
+    isMin: function(playMin){
+      if(Session.get('playMin')==playMin)
+        return 'X';
+    },
+    showProposal: function(){
+      return findBestNaive().text;
     }
-
   });
 
 
   Template.thegame.events({
     'click #startGame': function () {
-      cheat.remove({});
-      hand.remove({});
-      for(i=0;i<98;i++){
-        stapel[i] = i+2;
-        cheat.insert({card:i+2});
-      }
-      for(i=0;i<98;i++){
-        j = Math.floor(Math.random()*(98-i))+i;
-        k = stapel[j];
-        stapel[j]=stapel[i];
-        stapel[i]=k;
-      }
-
-
-      Session.set('firstLower',1);
-      Session.set('secondLower',1);
-      Session.set('firstUpper',100);
-      Session.set('secondUpper',100);
-      Session.set('activeCard','');
-      Session.set('stapelIndex',0);
-      addCards();
-
+      startGame();
     },
 
     'click #addCards': function () {
@@ -246,33 +324,27 @@ if (Meteor.isClient) {
       Session.set('stapelIndex',Session.get('stapelIndexR'));
       Session.set('activeCard','');
     },
-    'click #resetGame': function(){
-      cheat.remove({});
-      hand.remove({});
-      if(!stapel[0]){
-        for(i=0;i<98;i++){
-          stapel[i] = i+2;
-          cheat.insert({card:i+2});
-        }
-      }
-      for(i=0;i<98;i++){
-        j = Math.floor(Math.random()*(98-i))+i;
-        k = stapel[j];
-        stapel[j]=stapel[i];
-        stapel[i]=k;
-      }
-
-      Session.set('firstLower',1);
-      Session.set('secondLower',1);
-      Session.set('firstUpper',100);
-      Session.set('secondUpper',100);
-      Session.set('activeCard','');
-      Session.set('stapelIndex',0);
-      addCards();
-
+    'click #setMax7': function(){
+      Session.set("drawMax", 7);
     },
-
-
+    'click #setMax8': function(){
+      Session.set("drawMax", 8);
+    },
+    'click #setMin2': function(){
+      Session.set("playMin", 2);
+    },
+    'click #setMin3': function(){
+      Session.set("playMin", 3);
+    },
+    'click #doAutoMove': function(){
+      move = findBestNaive();
+      if(move.tableCard!=''){
+        Session.set('activeCard',move.tableCard);
+        addHandCard(move.handCard);
+      }else{
+        addCards();
+      }
+    }
 
   });
 }

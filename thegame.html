@@ -18,19 +18,28 @@
       <h1>{{headerContent}}</h1>
       <div class="btn-group">
         <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-          Game<span class="caret"></span>
+          Game control <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" role="menu">
-          <li><a href="#" id="resetHand">Reset hand</a></li>
-          <li><a href="#" id="resetGame">Reset game</a></li>
-          <li><a href="#" id="startGame">New game</a></li>
+          <li><a href="#" id="resetHand">Undo until last draw</a></li>
+          <li><a href="#" id="startGame">Start a new game</a></li>
+          <li class="divider"></li>
+          <li><a href="#" id="setMax7">Draw 7 Cards {{isDraw '7'}}</a></li>
+          <li><a href="#" id="setMax8">Draw 8 Cards {{isDraw '8'}}</a></li>
+          <li class="divider"></li>
+          <li><a href="#" id="setMin2">Min 2 Cards  {{isMin '2'}}</a></li>
+          <li><a href="#" id="setMin3">Min 3 Cards  {{isMin '3'}}</a></li>
         </ul>
       </div>
   </div>
-
   <div class ="row">
     <div class="col-md-12">
-      <p><button type="button"  class="btn btn-success btn-block" disabled="{{addCardsDisabled}}" id="addCards">Add Cards ({{remainingStapel}})</button></p>
+      <p><button type="button"  class="btn btn-success btn-block" id="doAutoMove">Accept Proposal ({{showProposal}})</button></p>
+    </div>
+  </div>
+  <div class ="row">
+    <div class="col-md-12">
+      <p><button type="button"  class="btn btn-success btn-block" disabled="{{addCardsDisabled}}" id="addCards">Draw cards ({{remainingStapel}})</button></p>
     </div>
   </div>
   <div class ="row">
@@ -60,10 +69,11 @@
       <button type="button"  class="btn btn-{{isActiveTable 'secondUpper'}} btn-block" id="secondUpper">{{secondUpper}}</button>
     </div>
   </div>
-
   <div class ="row">
     <div class="col-sm-12 col-md-12 col-lg-12">
-      <p></p><p>{{#each cheat}}{{card}} {{/each}}</p>
+      <p></p>
+      <p>Unplayed cards:</p>
+      <p>{{#each cheat}}{{card}} {{/each}}</p>
     </div>
   </div>
 
