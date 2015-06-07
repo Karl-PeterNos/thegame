@@ -20,6 +20,28 @@
         <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
           Game control <span class="caret"></span>
         </button>
+
+        {{#if isSimulation}}
+        <ul class="dropdown-menu" role="menu">
+          <li><a href="#" id="resetHand">Undo until last draw</a></li>
+          <li><a href="#" id="startGame">Start a new game</a></li>
+          <li class="divider"></li>
+          <li><a href="#" id="setMax7">Draw 7 Cards {{isDraw '7'}}</a></li>
+          <li><a href="#" id="setMax8">Draw 8 Cards {{isDraw '8'}}</a></li>
+          <li><a href="#" id="setMax9">Draw 9 Cards {{isDraw '9'}}</a></li>
+          <li><a href="#" id="setMax10">Draw 10 Cards {{isDraw '10'}}</a></li>
+          <li><a href="#" id="setMax11">Draw 11 Cards {{isDraw '11'}}</a></li>
+          <li><a href="#" id="setMax12">Draw 12 Cards {{isDraw '12'}}</a></li>
+          <li><a href="#" id="setMax13">Draw 13 Cards {{isDraw '13'}}</a></li>
+          <li><a href="#" id="setMax14">Draw 14 Cards {{isDraw '14'}}</a></li>
+          <li class="divider"></li>
+          <li><a href="#" id="setMin2">Min 2 Cards  {{isMin '2'}}</a></li>
+          <li><a href="#" id="setMin3">Min 3 Cards  {{isMin '3'}}</a></li>
+          <li><a href="#" id="setMin1">Min 1 Card  {{isMin '1'}}</a></li>
+          <li class="divider"></li>
+          <li><a href="#" id="doAutoPlayN">Repeated Auto play {{isAuto}}</a></li>
+        </ul>
+        {{else}}
         <ul class="dropdown-menu" role="menu">
           <li><a href="#" id="resetHand">Undo until last draw</a></li>
           <li><a href="#" id="startGame">Start a new game</a></li>
@@ -29,9 +51,9 @@
           <li class="divider"></li>
           <li><a href="#" id="setMin2">Min 2 Cards  {{isMin '2'}}</a></li>
           <li><a href="#" id="setMin3">Min 3 Cards  {{isMin '3'}}</a></li>
-          <li class="divider"></li>
-          <li><a href="#" id="doAutoPlayN">Repeated Auto play {{isAuto}}</a></li>
         </ul>
+        {{/if}}
+
       </div>
   </div>
   <div class ="row">
@@ -78,7 +100,7 @@
       <p>{{#each cheat}}{{card}} {{/each}}</p>
     </div>
   </div>
-
+  {{#if isSimulation}}
   <div class ="row">
     <div class="col-sm-12 col-md-12 col-lg-12">
       <p></p>
@@ -97,7 +119,6 @@
       </table>
     </div>
   </div>
-
-
+  {{/if}}
 
 </template>

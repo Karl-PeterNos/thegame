@@ -369,6 +369,9 @@ if (Meteor.isClient) {
       if(statisticA.findOne({min:Session.get('playMin'), max:Session.get('drawMax')}))
         return statisticA.findOne({min:Session.get('playMin'), max:Session.get('drawMax')}).countPlayed/statisticA.findOne({min:Session.get('playMin'), max:Session.get('drawMax')}).countGame;
       return 0;
+    },
+    isSimulation: function(){
+      return Session.get('simulationMode');      
     }
   });
 
@@ -414,11 +417,32 @@ if (Meteor.isClient) {
     'click #setMax8': function(){
       Session.set("drawMax", 8);
     },
+    'click #setMax9': function(){
+      Session.set("drawMax", 9);
+    },
+    'click #setMax10': function(){
+      Session.set("drawMax", 10);
+    },
+    'click #setMax11': function(){
+      Session.set("drawMax", 11);
+    },
+    'click #setMax12': function(){
+      Session.set("drawMax", 12);
+    },
+    'click #setMax13': function(){
+      Session.set("drawMax", 13);
+    },
+    'click #setMax14': function(){
+      Session.set("drawMax", 14);
+    },
     'click #setMin2': function(){
       Session.set("playMin", 2);
     },
     'click #setMin3': function(){
       Session.set("playMin", 3);
+    },
+    'click #setMin1': function(){
+      Session.set("playMin", 1);
     },
     'click #doAutoMove': function(){
       move = findBestNaive();
