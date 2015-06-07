@@ -1,5 +1,11 @@
+Router.route('/', function () {
+  this.render('thegame');
+});
+
+
 Router.route('/:simulationMode', function () {
   Session.set('simulationMode',this.params.simulationMode);
+  this.render('thegame');
 });
 
 
