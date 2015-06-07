@@ -1,3 +1,8 @@
+Router.route('/:simulationMode', function () {
+  Session.set('simulationMode',this.params.simulationMode);
+});
+
+
 if (Meteor.isClient) {
 
   hand = new Mongo.Collection(null);
@@ -371,7 +376,7 @@ if (Meteor.isClient) {
       return 0;
     },
     isSimulation: function(){
-      return Session.get('simulationMode');      
+      return Session.get('simulationMode');
     }
   });
 
