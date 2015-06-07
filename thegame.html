@@ -30,7 +30,7 @@
           <li><a href="#" id="setMin2">Min 2 Cards  {{isMin '2'}}</a></li>
           <li><a href="#" id="setMin3">Min 3 Cards  {{isMin '3'}}</a></li>
           <li class="divider"></li>
-          <li><a href="#" id="doAutoPlay">Auto play a game</a></li>
+          <li><a href="#" id="doAutoPlayN">Repeated Auto play {{isAuto}}</a></li>
         </ul>
       </div>
   </div>
@@ -78,5 +78,26 @@
       <p>{{#each cheat}}{{card}} {{/each}}</p>
     </div>
   </div>
+
+  <div class ="row">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+      <p></p>
+      <h2>Autoplay statistics (play min: {{playMin}}, hand: {{drawMax}})</h2>
+      <p>Total played:      <span class="badge">{{autoPlayCount}}</span></p>
+      <p>Total won:         <span class="badge">{{autoPlayWonCount}}</span></p>
+      <p>% won:             <span class="badge">{{autoPlayWonPct}}</span></p>
+      <p>Average played:    <span class="badge">{{autoPlayAvg}}</span></p>
+      <p></p>
+      <table class="table table-bordered">
+        {{#each statistic}}
+        <tr>
+          <td>{{result}}</td><td>{{countResult}}</td>
+        </tr>
+        {{/each}}
+      </table>
+    </div>
+  </div>
+
+
 
 </template>

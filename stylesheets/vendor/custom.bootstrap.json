@@ -8,7 +8,7 @@
     "type"                 : true,
     "code"                 : false,
     "grid"                 : true,
-    "tables"               : false,
+    "tables"               : true,
     "forms"                : true,
     "buttons"              : true,
 
@@ -27,7 +27,7 @@
     "jumbotron"            : true,
     "thumbnails"           : false,
     "alerts"               : false,
-    "progress-bars"        : false,
+    "progress-bars"        : true,
     "media"                : false,
     "list-group"           : false,
     "panels"               : true,

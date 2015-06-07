@@ -2,14 +2,22 @@ if (Meteor.isClient) {
 
   hand = new Mongo.Collection(null);
   cheat = new Mongo.Collection(null);
+  discard = new Mongo.Collection(null);
+  statistic = new Mongo.Collection(null);
+  statisticA = new Mongo.Collection(null);
   var stapel = new Array(99);
 
   handR = new Mongo.Collection(null);
   cheatR = new Mongo.Collection(null);
+  discardR = new Mongo.Collection(null);
 
   function startGame(){
+
+    var i = 0;
     cheat.remove({});
     hand.remove({});
+    discard.remove({});
+
     for(i=0;i<98;i++){
       stapel[i] = i+2;
       cheat.insert({card:i+2});
@@ -21,7 +29,6 @@ if (Meteor.isClient) {
       stapel[i]=k;
     }
 
-
     Session.set('firstLower',1);
     Session.set('secondLower',1);
     Session.set('firstUpper',100);
@@ -29,6 +36,19 @@ if (Meteor.isClient) {
     Session.set('activeCard','');
     Session.set('stapelIndex',0);
     addCards();
+  }
+
+  function doAutoPlay(){
+
+    while(findMove()>0){
+      move = findBestNaive();
+      if(move.tableCard!=''){
+        Session.set('activeCard',move.tableCard);
+        addHandCard(move.handCard);
+      }else{
+        addCards();
+      }
+    }
   }
 
   function addTableCard(tableCard){
@@ -58,6 +78,7 @@ if (Meteor.isClient) {
           return;
       }
       Session.set(tableCard,activeCard);
+      discard.insert({card:activeCard});
       cheat.remove({card:activeCard});
       hand.remove({card:activeCard});
       Session.set('activeCard','');
@@ -92,6 +113,7 @@ if (Meteor.isClient) {
           return;
       }
       Session.set(activeCard,handCard);
+      discard.insert({card:handCard});
       cheat.remove({card:handCard});
       hand.remove({card:handCard});
       Session.set('activeCard','');
@@ -123,7 +145,7 @@ if (Meteor.isClient) {
     var deltaMin = 100;
     var r = {handCard:0, tableCard:'', text:''};
 
-    if (hc<=(Session.get("drawMax")-Session.get("playMin"))){
+    if (((98-Session.get('stapelIndex'))>0)&&(hc<=(Session.get("drawMax")-Session.get("playMin")))){
       r.text = "Draw";
       return r;
     }
@@ -155,44 +177,51 @@ if (Meteor.isClient) {
       if((cc>Session.get('firstLower'))&&((cc-Session.get('firstLower'))<deltaMin)){
         r.handCard = cc;
         for(j=i+1;j<hc;j++){
-          if(hand.find().fetch()[j].card==(r.handCard+10))
-            r.handCard += 10;
+          if(hand.find().fetch()[j].card==(r.handCard+10)){
+            r.handCard = hand.find().fetch()[j].card;
+          }
         }
         r.tableCard = 'firstLower';
-        r.text = cc+" to "+Session.get(r.tableCard);
+        r.text = r.handCard+" to "+Session.get(r.tableCard);
         deltaMin = cc-Session.get('firstLower');
       }
       if((cc>Session.get('secondLower'))&&((cc-Session.get('secondLower'))<deltaMin)){
         r.handCard = cc;
         for(j=i+1;j<hc;j++){
-          if(hand.find().fetch()[j].card==(r.handCard+10))
-            r.handCard += 10;
+          if(hand.find().fetch()[j].card==(r.handCard+10)){
+            r.handCard = hand.find().fetch()[j].card;
+          }
         }
         r.tableCard = 'secondLower';
-        r.text = cc+" to "+Session.get(r.tableCard);
+        r.text = r.handCard+" to "+Session.get(r.tableCard);
         deltaMin = cc-Session.get('secondLower');
       }
       if((cc<Session.get('firstUpper'))&&((Session.get('firstUpper')-cc)<deltaMin)){
         r.handCard = cc;
         for(j=i-1;j>=0;j--){
-          if(hand.find().fetch()[j].card==(r.handCard-10))
-            r.handCard -= 10;
+          if(hand.find().fetch()[j].card==(r.handCard-10)){
+            r.handCard = hand.find().fetch()[j].card;
+          }
         }
         r.tableCard = 'firstUpper';
-        r.text = cc+" to "+Session.get(r.tableCard);
+        r.text = r.handCard+" to "+Session.get(r.tableCard);
         deltaMin = Session.get('firstUpper')-cc;
       }
       if((cc<Session.get('secondUpper'))&&((Session.get('secondUpper')-cc)<deltaMin)){
         r.handCard = cc;
         for(j=i-1;j>=0;j--){
-          if(hand.find().fetch()[j].card==(r.handCard-10))
-            r.handCard -= 10;
+          if(hand.find().fetch()[j].card==(r.handCard-10)){
+            r.handCard = hand.find().fetch()[j].card;
+          }
         }
         r.tableCard = 'secondUpper';
-        r.text = cc+" to "+Session.get(r.tableCard);
+        r.text = r.handCard+" to "+Session.get(r.tableCard);
         deltaMin = Session.get('secondUpper')-cc;
       }
     }
+
+
+
     if(deltaMin==100)
       r.text = "No more moves";
     return r;
@@ -208,24 +237,29 @@ if (Meteor.isClient) {
         if(si<98)
           si++;
       }
-      Session.set('stapelIndex',si)
+      Session.set('stapelIndex',si);
 
-      handR.remove({});
-      cheatR.remove({});
-      hand.find().forEach(function(doc){handR.insert(doc)});
-      cheat.find().forEach(function(doc){cheatR.insert(doc)});
-      Session.set('firstLowerR',Session.get('firstLower'));
-      Session.set('secondLowerR',Session.get('secondLower'));
-      Session.set('firstUpperR',Session.get('firstUpper'));
-      Session.set('secondUpperR',Session.get('secondUpper'));
-      Session.set('stapelIndexR',Session.get('stapelIndex'));
-
+      if(!(Session.get('inAutoGame'))){
+        handR.remove({});
+        cheatR.remove({});
+        discardR.remove({});
+        hand.find().forEach(function(doc){handR.insert(doc)});
+        cheat.find().forEach(function(doc){cheatR.insert(doc)});
+        discard.find().forEach(function(doc){discardR.insert(doc)});
+        Session.set('firstLowerR',Session.get('firstLower'));
+        Session.set('secondLowerR',Session.get('secondLower'));
+        Session.set('firstUpperR',Session.get('firstUpper'));
+        Session.set('secondUpperR',Session.get('secondUpper'));
+        Session.set('stapelIndexR',Session.get('stapelIndex'));
+      }
     }
   }
 
   Template.thegame.onCreated(function(){
     Session.set('playMin',3);
     Session.set('drawMax',7);
+    Session.set('autoId','');
+    Session.set('inAutoGame',false);
     startGame();
   });
 
@@ -255,6 +289,10 @@ if (Meteor.isClient) {
     hand: function(){
       return hand.find({},{sort: {card:1}});
     },
+    statistic: function(){
+      return statistic.find({min:Session.get('playMin'), max:Session.get('drawMax')},{sort: {result:1}});
+    },
+
     cheat: function(){
       return cheat.find();
     },
@@ -299,8 +337,38 @@ if (Meteor.isClient) {
       if(Session.get('playMin')==playMin)
         return 'X';
     },
+    playMin: function(){
+      return Session.get('playMin');
+    },
+    drawMax: function(){
+      return Session.get('drawMax');
+    },
+    isAuto: function(){
+      if(Session.get('autoId'))
+        return 'X';
+    },
     showProposal: function(){
       return findBestNaive().text;
+    },
+    autoPlayCount: function(){
+      if(statisticA.findOne({min:Session.get('playMin'), max:Session.get('drawMax')}))
+        return statisticA.findOne({min:Session.get('playMin'), max:Session.get('drawMax')}).countGame;
+        return 0;
+    },
+    autoPlayWonCount: function(){
+      if(statistic.findOne({result:0, min:Session.get('playMin'), max:Session.get('drawMax')}))
+        return statistic.findOne({result:0, min:Session.get('playMin'), max:Session.get('drawMax')}).countResult;
+      return 0;
+    },
+    autoPlayWonPct: function(){
+      if(statisticA.findOne({min:Session.get('playMin'), max:Session.get('drawMax')}))
+        return 100*statistic.findOne({result:0, min:Session.get('playMin'), max:Session.get('drawMax')}).countResult/statisticA.findOne({min:Session.get('playMin'), max:Session.get('drawMax')}).countGame;
+      return 0;
+    },
+    autoPlayAvg: function(){
+      if(statisticA.findOne({min:Session.get('playMin'), max:Session.get('drawMax')}))
+        return statisticA.findOne({min:Session.get('playMin'), max:Session.get('drawMax')}).countPlayed/statisticA.findOne({min:Session.get('playMin'), max:Session.get('drawMax')}).countGame;
+      return 0;
     }
   });
 
@@ -360,21 +428,32 @@ if (Meteor.isClient) {
       }else{
         addCards();
       }
-    },'click #doAutoPlay': function(){
+    },
+    'click #doAutoPlay': function(){
       if(findMove()==0)
         startGame();
+      doAutoPlay();
+    },
+    'click #doAutoPlayN': function(){
 
-      while(findMove()>0){
-        move = findBestNaive();
-        if(move.tableCard!=''){
-          Session.set('activeCard',move.tableCard);
-          addHandCard(move.handCard);
-        }else{
-          addCards();
-        }
+      if(Session.get('autoId')){
+        Meteor.clearInterval(Session.get('autoId'));
+        Session.set('autoId','');
+        return;
       }
-    }
 
+      Session.set('autoId',
+        Meteor.setInterval(function(){
+          if(Session.get("inAutoGame"))
+            return;
+          Session.set('inAutoGame',true);
+          startGame();
+          doAutoPlay();
+          statistic.upsert({result:98-discard.find().count(), min:Session.get('playMin'), max:Session.get('drawMax')}, {$inc:{countResult:1}});
+          statisticA.upsert({min:Session.get('playMin'), max:Session.get('drawMax')}, {$inc:{countGame:1, countPlayed: discard.find().count() }});
+          Session.set('inAutoGame',false);
+        }, 1));
+    }
   });
 }
 
